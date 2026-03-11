@@ -89,13 +89,13 @@ void BleService::LedCallbacks::onWrite(
 
     std::string value = characteristic->getValue();
 
-    if (value.length() != 1)
-    {
-        Serial.println("Payload inválido. Esperado 1 byte.");
-        return;
-    }
+    // if (value.length() != 1)
+    // {
+    //     Serial.println("Payload inválido. Esperado 1 byte.");
+    //     return;
+    // }
 
-    uint8_t brightness = static_cast<uint8_t>(value[0]);
+    uint8_t brightness = static_cast<uint64_t>(value[0]);
         Serial.print("BLE SERVER: Comando recebido. Brilho: ");
         Serial.println(brightness);
   

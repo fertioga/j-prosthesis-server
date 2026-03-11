@@ -2,6 +2,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 
+#define QUEUE_SIZE 5
 struct QueuesConfig
 {
     // -----------------------------
@@ -15,7 +16,7 @@ private:
     QueuesConfig()
     {
         // Filas
-        ledQueue    = xQueueCreate(5, sizeof(uint8_t));
+        ledQueue    = xQueueCreate(QUEUE_SIZE, sizeof(uint64_t));
         // New queues can be initialized here
     }
 
