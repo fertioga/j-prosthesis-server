@@ -2,6 +2,7 @@
 
 #include "bootstrap.hpp"
 #include <NimBLEDevice.h>
+#include "app/structs/LedPayloadBle.hpp"
 
 class BleService
 {

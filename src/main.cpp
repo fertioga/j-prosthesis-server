@@ -1,5 +1,6 @@
 
 #include "bootstrap.hpp"
+#include "app/configs/HardwareMapConf.hpp"
 
 #include "app/actions/ReadQueueLedBleAction.hpp"
 #include "app/service/LED/NeoPixelService.hpp"
@@ -10,7 +11,7 @@
 BleService ble;
 NeoPixelService ledService(LED_PIN, LED_COUNT);
 
-ReadQueueLedBleAction readLed;
+ReadQueueLedBleAction readLedAction(&ledService);
 StartingDeviceAction startingDeviceAction(&ledService);
 
 
@@ -20,11 +21,9 @@ void setup()
     
     ble.begin();
     ledService.begin();
-
-    //readLed.run();
-
-
+    
     startingDeviceAction.run();
+    readLedAction.run();
     
 }
 

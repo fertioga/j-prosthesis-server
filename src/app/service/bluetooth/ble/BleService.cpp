@@ -1,5 +1,6 @@
 #include "app/service/bluetooth/ble/BleService.hpp"
 
+
 /* ================================================================ */
 
 void BleService::begin()
@@ -87,20 +88,24 @@ void BleService::LedCallbacks::onWrite(
         return;
     }
 
-    std::string value = characteristic->getValue();
+    //std::string value = characteristic->getValue();
 
-    // if (value.length() != 1)
-    // {
-    //     Serial.println("Payload inválido. Esperado 1 byte.");
-    //     return;
-    // }
 
-    uint8_t brightness = static_cast<uint64_t>(value[0]);
-        Serial.print("BLE SERVER: Comando recebido. Brilho: ");
-        Serial.println(brightness);
-  
+    // uint8_t brightness = static_cast<uint64_t>(value[0]);
+    //     Serial.print("BLE SERVER: Comando recebido. Brilho: ");
+    //     Serial.println(brightness);
+
+    LedPayloadBle payload;
+    if (sizeof(payload) != characteristic->getValue().size())
+    {
+        Serial.println("Invalid payload size. Expected: " + String(sizeof(LedPayloadBle)) + " bytes, Received: " + String(characteristic->getValue().size()) + " bytes.");
+        return;
+    }
+
+    memcpy(&payload, characteristic->getValue(), sizeof(LedPayloadBle)); // copy the data into the struct
+
     /** Send to queue */
-    this->bleService->queueService.send(QueuesConfig::instance().ledQueue, brightness);
+    this->bleService->queueService.send(QueuesConfig::instance().ledQueue, payload);
 }
 
 /* ================= SERVER CALLBACK ================= */
