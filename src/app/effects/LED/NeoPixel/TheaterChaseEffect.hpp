@@ -1,3 +1,4 @@
+#pragma once
 #include "ILedEffect.hpp"
 #include "app/service/LED/NeoPixelService.hpp"
 

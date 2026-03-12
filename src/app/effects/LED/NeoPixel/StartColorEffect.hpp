@@ -1,23 +1,31 @@
+#pragma once
 #include "ILedEffect.hpp"
 #include "app/service/LED/NeoPixelService.hpp"
-#include "TurnOffEffect.hpp"
 
+#define START_COLOR_DELAY 70 // Delay in milliseconds between setting each LED to the start color
+#define FADE_OUT_DELAY 30 // Delay in milliseconds between each step of the fade-out effect
 class StartColorEffect : public ILedEffect
 {
     public:
 
         StartColorEffect(NeoPixelService* ledService, uint32_t color) : ledService(ledService), color(color) {};
         void run() override
-        {
-            TurnOffEffect turnOffEffect(ledService);
-            turnOffEffect.run();
-
-            for(uint16_t i=0; i < ledService->strip->numPixels(); i++) {
-                ledService->strip->setPixelColor(i, color); //  Update delay time  
-                pdMS_TO_TICKS(1000); 
-            }
-            ledService->strip->show();  //  Update strip to match
+        {     
+            turnOnLeds();
         }
+
+        void turnOnLeds()
+        {
+             for(uint16_t i=0; i < ledService->strip->numPixels(); i++) {
+                ledService->strip->setPixelColor(i, color); 
+                
+                vTaskDelay(START_COLOR_DELAY / portTICK_PERIOD_MS); //  Update delay time
+
+                ledService->strip->show();  //  Update strip to match
+            }
+        }
+
+        
 
     private:
         NeoPixelService* ledService;
