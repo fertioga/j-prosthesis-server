@@ -19,6 +19,8 @@
  #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
 #endif
 
+#define Brightness 50 // Set BRIGHTNESS to about 1/5 (max = 255)
+
 class NeoPixelService
 {
     public:

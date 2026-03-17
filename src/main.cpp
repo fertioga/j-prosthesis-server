@@ -8,12 +8,12 @@
 // Actions
 #include "app/actions/StartingDeviceAction.hpp"
 
+
 BleService ble;
 NeoPixelService ledService(LED_PIN, LED_COUNT);
 
 ReadQueueLedBleAction readLedAction(&ledService);
 StartingDeviceAction startingDeviceAction(&ledService);
-
 
 void setup()
 {
@@ -23,21 +23,13 @@ void setup()
     ledService.begin();
     
     startingDeviceAction.run();
+
     readLedAction.run();
-    
 }
 
 void loop()
-{
-
-    // startColorEffect.run();
-    //  delay(1000);
-
-    //  ledService.strip->setBrightness(100);
-    //  ledService.strip->show();
-
-    
-
+{   
+    /* loop */
 }
 
 

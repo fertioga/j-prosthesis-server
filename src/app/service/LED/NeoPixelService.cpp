@@ -14,9 +14,9 @@ NeoPixelService::NeoPixelService(uint8_t pin, uint16_t count) {
 
 void NeoPixelService::begin()
 {
-    strip->begin();           // INITIALIZE NeoPixel strip object (REQUIRED) --- IGNORE ---
-    strip->show();            // Turn OFF all pixels ASAP --- IGNORE ---
-    strip->setBrightness(50); // Set BRIGHTNESS to about 1/5 (max = 255) --- IGNORE ---
+    strip->begin();                   // INITIALIZE NeoPixel strip object (REQUIRED) --- IGNORE ---
+    strip->show();                    // Turn OFF all pixels ASAP --- IGNORE ---
+    strip->setBrightness(Brightness); // Set BRIGHTNESS to about 1/5 (max = 255) --- IGNORE ---
 }
 
 // Input a value 0 to 255 to get a color value.

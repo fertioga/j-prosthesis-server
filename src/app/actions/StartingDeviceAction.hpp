@@ -23,7 +23,7 @@ class StartingDeviceAction : public IAction
             StartColorEffect startColorEffect(ledService, 0xFFFFFF); // White colors
             startColorEffect.run();
 
-             FadeOutEffect fadeOutEffect(ledService, FADE_OUT_DELAY); //  Update delay time
+            FadeOutEffect fadeOutEffect(ledService, FADE_OUT_DELAY); //  Update delay time
             fadeOutEffect.run();
         }
     
