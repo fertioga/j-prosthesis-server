@@ -7,7 +7,7 @@ class TurnOffEffect : public ILedEffect
     public:
 
         TurnOffEffect(NeoPixelService* ledService) : ledService(ledService) {};
-        void run() override
+        void run(uint8_t r, uint8_t g, uint8_t b) override
         {
             for(uint16_t i=0; i < ledService->strip->numPixels(); i++) {
                 ledService->strip->setPixelColor(i, ledService->strip->Color(0, 0, 0)); // Turn off LED

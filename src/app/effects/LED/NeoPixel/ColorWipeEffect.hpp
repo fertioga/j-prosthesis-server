@@ -7,7 +7,7 @@ class ColorWipeEffect : public ILedEffect
     public:
 
         ColorWipeEffect(NeoPixelService* ledService, uint8_t wait, uint32_t color) : ledService(ledService), wait(wait), color(color) {};
-        void run() override
+        void run(uint8_t r, uint8_t g, uint8_t b) override
         {
             static uint16_t current_pixel = 0;
             pixelInterval = wait;                                       //  Update delay time

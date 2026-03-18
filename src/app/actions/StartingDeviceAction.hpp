@@ -21,10 +21,10 @@ class StartingDeviceAction : public IAction
             Serial.println("Starting device...");
 
             StartColorEffect startColorEffect(ledService, 0xFFFFFF); // White colors
-            startColorEffect.run();
+            startColorEffect.run(255, 255 ,255);
 
             FadeOutEffect fadeOutEffect(ledService, FADE_OUT_DELAY); //  Update delay time
-            fadeOutEffect.run();
+            fadeOutEffect.run(0, 0 ,0);
         }
     
     private:

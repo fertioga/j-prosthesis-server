@@ -19,7 +19,7 @@ public:
     SosEffects(NeoPixelService* ledService)
         : ledService(ledService), turnoff(ledService) {}
 
-    void run() override
+    void run(uint8_t r, uint8_t g, uint8_t b) override
     {
         if (millis() - lastUpdate < UNIT)
             return;
@@ -40,7 +40,7 @@ public:
                 }
                 
                 vTaskDelay(pdMS_TO_TICKS(UNIT));
-                turnoff.run();
+                turnoff.run(r, g, b);
                 vTaskDelay(pdMS_TO_TICKS(UNIT));
 
                 break;
@@ -55,13 +55,13 @@ public:
                 }
 
                 vTaskDelay(pdMS_TO_TICKS(UNIT * 3));
-                turnoff.run();
+                turnoff.run(r, g, b);
                 vTaskDelay(pdMS_TO_TICKS(UNIT * 3));
 
                 break;
 
             case PAUSE:
-                turnoff.run();
+                turnoff.run(r, g, b);
                 state = S;
                 break;
         }

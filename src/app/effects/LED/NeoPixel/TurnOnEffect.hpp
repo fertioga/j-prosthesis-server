@@ -9,19 +9,15 @@ class TurnOnEffect : public ILedEffect
     public:
         TurnOnEffect(NeoPixelService* ledService) : ledService(ledService) {};
 
-        void setColor(uint8_t r, uint8_t g, uint8_t b) {
-            color = ledService->strip->Color(r, g, b);
-        }
-        void run() override
+        void run(uint8_t r, uint8_t g, uint8_t b) override
         {
             for(uint16_t i=0; i < ledService->strip->numPixels(); i++) {
-                ledService->strip->setPixelColor(i, color); // Set all pixels to the specified color
+                ledService->strip->setPixelColor(i, ledService->strip->Color(r, g, b)); 
                 
-                vTaskDelay(pdMS_TO_TICKS(50)); //  Update delay time
+                vTaskDelay(pdMS_TO_TICKS(50)); 
             }
-            ledService->strip->show();  //  Update strip to match
+            ledService->strip->show(); 
         }
     private:
         NeoPixelService* ledService;
-        uint32_t color;
 };

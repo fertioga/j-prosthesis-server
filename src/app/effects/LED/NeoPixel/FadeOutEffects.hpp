@@ -13,7 +13,7 @@ class FadeOutEffect : public ILedEffect
             turnOff(ledService) 
         {};
 
-        void run() override
+        void run(uint8_t r, uint8_t g, uint8_t b) override
         {
             int originalBrightness = ledService->strip->getBrightness();
             for (int brightness = ledService->strip->getBrightness(); brightness >= 0; brightness--) {
@@ -22,7 +22,7 @@ class FadeOutEffect : public ILedEffect
                 vTaskDelay(delayTime / portTICK_PERIOD_MS);
             }
 
-            turnOff.run();
+            turnOff.run(r, g, b);
             ledService->strip->setBrightness(originalBrightness);
 
         }

@@ -9,7 +9,7 @@ class StartColorEffect : public ILedEffect
     public:
 
         StartColorEffect(NeoPixelService* ledService, uint32_t color) : ledService(ledService), color(color) {};
-        void run() override
+        void run(uint8_t r, uint8_t g, uint8_t b) override
         {     
             turnOnLeds();
         }

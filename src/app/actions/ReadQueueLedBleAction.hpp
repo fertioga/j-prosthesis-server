@@ -10,6 +10,8 @@
 #include "app/effects/LED/NeoPixel/TurnOnEffect.hpp"
 #include "app/effects/LED/NeoPixel/TurnOffEffect.hpp"
 #include "app/effects/LED/NeoPixel/SosEffects.hpp"
+#include "app/effects/LED/NeoPixel/PolicyEffect.hpp"
+#include "app/effects/LED/NeoPixel/StroboEffect.hpp"
 
 
 /*
@@ -23,9 +25,11 @@
         0: Turn off LEDs
         1: TurnOnEffect (set all LEDs to the specified color)
         2: SosEffect (blink LEDs in SOS pattern)
+        3: PolicyEffect 
+        4: StroboEffect
 */
 
-#define TOTAL_LED_EFFECTS 3 // Update this value based on the actual number of effects implemented
+#define TOTAL_LED_EFFECTS 5 // Update this value based on the actual number of effects implemented
 
 class ReadQueueLedBleAction : public IAction
 {
@@ -38,11 +42,13 @@ class ReadQueueLedBleAction : public IAction
         TurnOnEffect turnOnEffect;
         TurnOffEffect turnOffEffect;
         SosEffects sosEffect;
+        PolicyEffect policyEffect;
+        StroboEffect stroboEffect;
 
         ILedEffect* effectSelected = nullptr; 
 
-        uint8_t lastR = 0, lastG = 0, lastB = 0, lastBrightness = 0; 
-        uint8_t currentR = 0, currentG = 0, currentB = 0, currentBrightness = 0;
+        uint8_t lastR=0, lastG=0, lastB=0, lastBrightness=0; 
+        uint8_t currentR=0, currentG=0, currentB=0, currentBrightness=0;
 
         ILedEffect* effectsLedMap[TOTAL_LED_EFFECTS]; // Map of effect instances
 
@@ -51,12 +57,16 @@ class ReadQueueLedBleAction : public IAction
             ledService(ledService), 
             turnOnEffect(ledService), 
             turnOffEffect(ledService),
-            sosEffect(ledService) 
+            sosEffect(ledService),
+            policyEffect(ledService),
+            stroboEffect(ledService)
         {
             /* Initialize effect map */
             effectsLedMap[0] = &turnOffEffect; 
             effectsLedMap[1] = &turnOnEffect; 
-            effectsLedMap[2] = &sosEffect; 
+            effectsLedMap[2] = &sosEffect;
+            effectsLedMap[3] = &policyEffect; 
+            effectsLedMap[4] = &stroboEffect;
         }
        
         void task(void* pvParameters)
@@ -65,18 +75,6 @@ class ReadQueueLedBleAction : public IAction
             {
                 if (xQueueReceive(QueuesConfig::instance().ledQueue, &payload, 0))
                 {
-                    Serial.println("Comando recebido da fila LED BLE:");
-                    Serial.print("R: ");
-                    Serial.print(payload.r);
-                    Serial.print(" G: ");
-                    Serial.print(payload.g);
-                    Serial.print(" B: ");
-                    Serial.print(payload.b);
-                    Serial.print(" Brilho: ");
-                    Serial.print(payload.brigthness);
-                    Serial.print(" Efeito: ");
-                    Serial.println(payload.effect);
-
                     currentR = payload.r;
                     currentG = payload.g;
                     currentB = payload.b;
@@ -91,7 +89,7 @@ class ReadQueueLedBleAction : public IAction
 
                 setLeds();
                 setBrightness();
-                setEffect();
+                setEffect(currentR, currentG, currentB);
 
                 vTaskDelay(pdMS_TO_TICKS(50)); // wait before checking the queue again
                 
@@ -120,8 +118,7 @@ class ReadQueueLedBleAction : public IAction
                     lastG = currentG;
                     lastB = currentB;
                     
-                    turnOnEffect.setColor(currentR, currentG, currentB); 
-                    turnOnEffect.run();
+                    turnOnEffect.run(currentR, currentG, currentB);
                 }
             }
 
@@ -136,10 +133,10 @@ class ReadQueueLedBleAction : public IAction
                 }
             }   
 
-        void setEffect()
+        void setEffect(uint8_t r, uint8_t g, uint8_t b)
             {
                 if(effectSelected != nullptr) {
-                    effectSelected->run();
+                    effectSelected->run(r, g, b);
                 }
             }
 

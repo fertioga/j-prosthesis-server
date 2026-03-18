@@ -13,5 +13,5 @@ TheaterChaseRainbowEffect theaterChaseEffect(&ledService, 50);
 
 void loop()
 { 
-    theaterChaseEffect.run();
+    theaterChaseEffect.run(r, g, b);
 }
