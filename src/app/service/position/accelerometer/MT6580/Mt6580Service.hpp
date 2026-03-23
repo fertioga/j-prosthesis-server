@@ -4,7 +4,6 @@
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 #include "app/effects/Sound/ISound.hpp"
-#include "app/configs/Mt6580Config.hpp"
 #include "app/configs/HardwareMapConf.hpp"
 
 

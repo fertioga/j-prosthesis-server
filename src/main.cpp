@@ -7,11 +7,12 @@
 
 // Actions
 #include "app/actions/StartingDeviceAction.hpp"
-
-
 #include "app/actions/SoundMoveRoboAction.hpp"
+
 #include "app/service/position/accelerometer/MT6580/Mt6580Service.hpp"
 #include "app/effects/Sound/RoboServoEffect.hpp"
+
+#include "app/service/ArduinoJson/ArduinoJsonService.hpp"
 
 BleService ble;
 NeoPixelService ledService(LED_PIN, LED_COUNT);
@@ -23,6 +24,8 @@ Mt6580Service mt6580Service;
 RoboServoEffect roboServoEffect;
 
 SoundMoveRoboAction soundMoveRoboAction(&mt6580Service, &roboServoEffect);
+
+ArduinoJsonService jsonService;
 
 
 void setup()
@@ -39,6 +42,32 @@ void setup()
     readLedAction.run();
 
     soundMoveRoboAction.run();
+
+    //---
+
+    jsonService.begin();
+
+    // // Salvar dados
+    // jsonService.setString("wifi_ssid", "MinhaRede");
+    // jsonService.setString("wifi_pass", "12345678");
+    // jsonService.setInt("sensor_interval", 30);
+    // jsonService.setBool("ble_enabled", true);
+
+    // // Recuperar dados
+    // Serial.println(jsonService.getString("wifi_ssid"));
+    // Serial.println(jsonService.getString("wifi_pass"));
+    // Serial.println(jsonService.getInt("sensor_interval"));
+    // Serial.println(jsonService.getBool("ble_enabled"));
+
+    // jsonService.set<int>("sensor.interval", 30);
+    // jsonService.set<bool>("ble.enabled", true);
+
+    //int interval = jsonService.get<int>("sensor.interval", 10);
+
+    Serial.print(" SENSOR INTERVAL: ");
+    Serial.println(jsonService.get<String>("wifi.ssid",""));
+
+    //--
 
     Serial.println("");
     delay(100);
