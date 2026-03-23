@@ -8,6 +8,8 @@
 #include "app/configs/HardwareMapConf.hpp"
 
 
+/** INITIAL VALUES, CAN BE CHANGE WITH BLUETOOTH INTEGRATION */
+#define LIFT_THRESHOLD        1.5 // Acceleration threshold to detect a lift or upward motion
 #define AIR_THRESHOLD         3.0 // Acceleration threshold indicating the device is in free motion / airborne
 #define IMPACT_THRESHOLD      1.0 // Acceleration threshold to detect a strong impact or collision
 #define STABLE_THRESHOLD      0.6 // Maximum acceleration variation to consider the device stable
