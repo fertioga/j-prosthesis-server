@@ -84,7 +84,7 @@ void Mt6580Service::detectStep(float mov, ISound& callback)
                 state = IN_AIR;
                 stateChangeTime = now;
             }
-            else if(dynamicAccel < STABLE_THRESHOLD) {
+            else if(dynamicAccel < step_debounce) {
                 state = STABLE;
             }
         break;
@@ -92,7 +92,7 @@ void Mt6580Service::detectStep(float mov, ISound& callback)
         case IN_AIR:
             Serial.print("IN_AIR: mov - grav: ");
             Serial.println(dynamicAccel);
-            if(now - stateChangeTime < STEP_DEBOUNCE) break;
+            if(now - stateChangeTime < step_debounce) break;
 
             if(dynamicAccel > impact_threshold &&
                (now - lastStepTime > step_cooldown_ms)) {
@@ -105,6 +105,9 @@ void Mt6580Service::detectStep(float mov, ISound& callback)
                 Serial.print(dynamicAccel);
                 Serial.print(" IMPACT_THRESHOLD ");
                 Serial.println(impact_threshold);
+
+                Serial.print(" Valor config: ");
+                Serial.println(config.getFloat("accelerometer.impact_threshold",0.0));
                 /***********************/
                 /** CALL SOUND METHOD **/
                 /***********************/

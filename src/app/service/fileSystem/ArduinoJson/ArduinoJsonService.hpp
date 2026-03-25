@@ -37,38 +37,6 @@ class ArduinoJsonService: public IFileSystemConfig
             return true;
         }
 
-        void listFiles()
-        {
-            File root = LittleFS.open("/");
-
-            File file = root.openNextFile();
-            while (file) {
-                Serial.print("FILE: ");
-                Serial.println(file.name());
-                file = root.openNextFile();
-            }
-        }   
-
-        void printFile(const char* path)
-        {
-            File file = LittleFS.open(path, "r");
-
-            if (!file) {
-                Serial.println("Erro ao abrir arquivo");
-                return;
-            }
-
-            Serial.println("----- FILE CONTENT -----");
-
-            while (file.available()) {
-                Serial.write(file.read());
-            }
-
-            Serial.println("\n------------------------");
-
-            file.close();
-        }
-
         template<typename T>
         bool setRaw(const String& varName, T value) {
 
@@ -129,6 +97,11 @@ class ArduinoJsonService: public IFileSystemConfig
         }
 
     public:
+        ArduinoJsonService(const String& path = "/config.json")
+        {
+            begin(path);
+        }
+
         bool begin(const String& path = "/config.json")
         {    
             filePath = path;
@@ -193,5 +166,37 @@ class ArduinoJsonService: public IFileSystemConfig
         bool getBool(const String& varName, const bool defaultValue)
         { 
             return this->getRaw(varName, defaultValue); 
+        }
+
+        void listFiles()
+        {
+            File root = LittleFS.open("/");
+
+            File file = root.openNextFile();
+            while (file) {
+                Serial.print("FILE: ");
+                Serial.println(file.name());
+                file = root.openNextFile();
+            }
+        }   
+
+        void printFile(const char* fileName)
+        {
+            File file = LittleFS.open(fileName, "r");
+
+            if (!file) {
+                Serial.println("Erro ao abrir arquivo");
+                return;
+            }
+
+            Serial.println("----- FILE CONTENT -----");
+
+            while (file.available()) {
+                Serial.write(file.read());
+            }
+
+            Serial.println("\n------------------------");
+
+            file.close();
         }
 };

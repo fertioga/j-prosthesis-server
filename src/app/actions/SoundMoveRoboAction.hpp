@@ -1,5 +1,6 @@
 #include "app/effects/Sound/ISound.hpp"
 #include "app/service/position/accelerometer/MT6580/Mt6580Service.hpp"
+#include "app/service/fileSystem/IFileSystemConfig.hpp"
 
 class SoundMoveRoboAction: public IAction
 {
@@ -7,8 +8,8 @@ public:
 
     SoundMoveRoboAction(Mt6580Service* mt6580Service, ISound* sound): 
         taskService(TaskService()),
-        mt6580Service(mt6580Service), 
-        sound(sound) {}
+        sound(sound),
+        mt6580Service(mt6580Service){}
 
     void task(void* pvParameters)
     {

@@ -1,5 +1,15 @@
 {
   "wifi": {
     "ssid": "MinhaRede"
+  },
+  "accelerometer":{
+    "lift_threshold": 1.5,
+    "air_threshold": 3.0,
+    "impact_threshold": 1.1,
+    "stable_threshold": 0.6,
+    "step_cooldown_ms": 250,
+    "step_debounce": 80,
+    "ace_i2c_speed": 100000,
+    "ace_i2c_timeout": 50
   }
 }
