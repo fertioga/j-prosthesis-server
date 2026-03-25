@@ -16,3 +16,6 @@ using std::vector;
 #include "app/service/RTOS/Queues/QueueService.hpp"
 
 #include "app/service/bluetooth/ble/BleService.hpp"
+
+#include "app/service/fileSystem/IFileSystemConfig.hpp"
+#include "app/service/fileSystem/ArduinoJson/ArduinoJsonService.hpp"
