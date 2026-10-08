@@ -1,0 +1,115 @@
+---
+description: Definição técnica e padrões de projeto do j-prosthesis-server — stack, versões, layout de diretórios e arquitetura services/actions/effects.
+alwaysApply: true
+---
+
+# Project Technical Standards
+
+Definição técnica e de padrão de projeto do firmware `j-prosthesis-server`.
+Alinha com a constituição em `.specify/memory/constitution.md`.
+
+**Escopo:** somente este repositório (firmware da prótese). Client-watch, cloud e dashboard são sistemas vizinhos.
+
+## 1. Stack Canônica
+
+**Não inventar stack. Usar o que está em `platformio.ini`.**
+
+| Camada | Valor |
+|--------|--------|
+| Build | PlatformIO |
+| Platform | `espressif32` |
+| Board | `esp32doit-devkit-v1` |
+| Framework | Arduino (+ FreeRTOS do core ESP32) |
+| Filesystem | LittleFS (`board_build.filesystem = littlefs`) |
+| Linguagem | C++ (Arduino style; headers `.hpp`, impl `.cpp`) |
+| Serial monitor | 115200 |
+
+Dependências (`lib_deps` em `platformio.ini`) — respeitar ranges:
+
+- `h2zero/NimBLE-Arduino@^2.3.7`
+- `adafruit/Adafruit NeoPixel@^1.15.4`
+- `adafruit/Adafruit MPU6050@^2.2.9`
+- `bblanchon/ArduinoJson@^6.21.3`
+
+Ao adicionar lib: declarar em `platformio.ini` com versão semver (`^x.y.z`). Não versionar `.pio/`.
+
+## 2. Layout de Diretórios
+
+**Coloque cada tipo de arquivo no lugar certo. Não invente pastas paralelas.**
+
+```
+j-prosthesis-server/
+├── platformio.ini          # env, board, lib_deps, LittleFS
+├── data/                   # arquivos LittleFS (upload FS)
+│   └── config.json         # config runtime (thresholds IMU, etc.)
+├── include/                # headers públicos extras (PlatformIO)
+├── lib/                    # libs locais privadas do projeto
+├── test/                   # testes PlatformIO
+├── src/
+│   ├── main.cpp            # wiring: instancia serviços/actions; setup/loop
+│   ├── bootstrap.hpp       # includes comuns do app (Arduino, configs, RTOS, BLE, FS)
+│   └── app/
+│       ├── configs/        # pinout, BLE UUIDs, queues (#defines / helpers)
+│       ├── structs/        # payloads/DTOs tipados (ex.: BLE LED)
+│       ├── service/        # drivers/adapters de hardware e infra
+│       │   ├── LED/        # NeoPixelService
+│       │   ├── bluetooth/ble/
+│       │   ├── fileSystem/ # IFileSystemConfig + ArduinoJsonService
+│       │   ├── position/accelerometer/.../
+│       │   └── RTOS/       # Tasks/, Queues/
+│       ├── effects/        # efeitos puros (LED, Sound) — sem orquestração
+│       └── actions/        # casos de uso FreeRTOS (IAction → run/task)
+├── .specify/               # SpecKit (constitution, specs, plans, tasks)
+└── .cursor/rules/          # rules do agente
+```
+
+Regras de colocação:
+
+- Pinout / baud / constantes de HW → `src/app/configs/HardwareMapConf.*`
+- UUIDs, nome do device, security BLE → `src/app/configs/BleConfig.hpp`
+- Filas FreeRTOS → `src/app/configs/QueuesConfig.hpp` + `service/RTOS/Queues/`
+- Payload BLE tipado → `src/app/structs/`
+- Novo periférico → `src/app/service/<domínio>/<tecnologia>/`
+- Novo efeito visual/sonoro → `src/app/effects/<domínio>/`
+- Nova orquestração (task + fila + efeito) → `src/app/actions/`
+- Thresholds/config persistida → `data/config.json` + leitura via `ArduinoJsonService`
+
+## 3. Arquitetura Modular
+
+**Services encapsulam HW. Effects são comportamentos. Actions orquestram em FreeRTOS.**
+
+Camadas (de baixo para cima):
+
+1. **Service** — acesso a hardware/infra (`begin()`, APIs estáveis). Ex.: `NeoPixelService`, `BleService`, `Mt6580Service`.
+2. **Effect** — comportamento reutilizável sobre um service/recurso. Interface fina (`ILedEffect`, `ISound`). Ex.: `StroboEffect`, `RoboServoEffect`.
+3. **Action** — caso de uso: herda `IAction`, implementa `run()` (cria task) e `task()` (loop FreeRTOS). Usa `IAction::entry` como entry point estático.
+4. **main.cpp** — só composição/wiring. `loop()` não concentra lógica de domínio (hoje deleta a task do loop Arduino).
+
+Padrões obrigatórios:
+
+- Novas funções estendem service/effect/action existentes ou criam isolados — **não** acoplar domínio em `main` nem em ISR além do necessário.
+- Operações críticas (IMU, LED, som, BLE I/O) em tasks/queues FreeRTOS, sem bloquear umas às outras indevidamente.
+- Preferir interfaces (`IAction`, `ILedEffect`, `IFileSystemConfig`) quando houver variação (efeitos, backends).
+- Includes de app via paths `app/...`; tipos comuns via `bootstrap.hpp` quando já for o padrão local.
+- Match do estilo existente: `#pragma once`, classes com métodos claros, configs em `#define` / `constexpr`.
+
+## 4. Contratos e Dados
+
+**BLE e schemas são API pública. Versionar; não quebrar silenciosamente.**
+
+- BLE bidirecional: contratos em `BleConfig.hpp` + structs em `structs/`.
+- JSON (config/telemetria) via ArduinoJson 6.x; filesystem LittleFS.
+- Telemetria/config: metadados mínimos e schema versionado quando evoluir.
+- Builds de produção: não logar PII no Serial.
+
+## 5. O Que Não Fazer
+
+**YAGNI embarcado. Recursos finitos.**
+
+- Não adicionar middleware/stack “para o futuro” sem feature aprovada.
+- Não colocar lógica de domínio em `src/main.cpp` além do wiring.
+- Não misturar effect dentro de service nem service dentro de effect.
+- Não alterar `platformio.ini` (board/platform/libs) sem necessidade explícita e alinhamento com a constituição.
+- Não editar client-watch / cloud sob a égide desta rule.
+
+**Tradeoff:** esta rule privilegia previsibilidade do firmware clínico-assistivo sobre flexibilidade genérica.
