@@ -7,14 +7,14 @@
 
 // Actions
 #include "app/actions/StartingDeviceAction.hpp"
-#include "app/actions/SoundMoveRoboAction.hpp"
+// #include "app/actions/SoundMoveRoboAction.hpp"
 
-#include "app/service/position/accelerometer/MT6580/Mt6580Service.hpp"
-#include "app/effects/Sound/RoboServoEffect.hpp"
+// #include "app/service/position/accelerometer/MT6580/Mt6580Service.hpp"
+// #include "app/effects/Sound/RoboServoEffect.hpp"
 
-#include "app/service/fileSystem/ArduinoJson/ArduinoJsonService.hpp"
+// #include "app/service/fileSystem/ArduinoJson/ArduinoJsonService.hpp"
 
-ArduinoJsonService<2048> config("/config.json");
+// ArduinoJsonService<2048> config("/config.json");
 
 BleService ble;
 NeoPixelService ledService(LED_PIN, LED_COUNT);
@@ -22,10 +22,10 @@ NeoPixelService ledService(LED_PIN, LED_COUNT);
 ReadQueueLedBleAction readLedAction(&ledService);
 StartingDeviceAction startingDeviceAction(&ledService);
 
-Mt6580Service mt6580Service(config);
-RoboServoEffect roboServoEffect;
+// Mt6580Service mt6580Service(config);
+// RoboServoEffect roboServoEffect;
 
-SoundMoveRoboAction soundMoveRoboAction(&mt6580Service, &roboServoEffect);
+// SoundMoveRoboAction soundMoveRoboAction(&mt6580Service, &roboServoEffect);
 
 void setup()
 {
@@ -34,13 +34,13 @@ void setup()
     ble.begin();
     ledService.begin();
 
-    mt6580Service.begin();
+    // mt6580Service.begin();
     
     startingDeviceAction.run();
 
     readLedAction.run();
 
-    soundMoveRoboAction.run();
+    // soundMoveRoboAction.run();
 
    
     // config.listFiles();
@@ -54,7 +54,7 @@ void setup()
 
 void loop()
 {   
-    vTaskDelete();
+    vTaskDelete(NULL);
 
 }
 
