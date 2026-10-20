@@ -1,9 +1,10 @@
-
 #include "bootstrap.hpp"
 #include "app/configs/HardwareMapConf.hpp"
 
 #include "app/actions/ReadQueueLedBleAction.hpp"
+#include "app/actions/PublishBatteryLevelAction.hpp"
 #include "app/service/LED/NeoPixelService.hpp"
+#include "app/service/power/battery/BatteryLevelService.hpp"
 
 // Actions
 #include "app/actions/StartingDeviceAction.hpp"
@@ -22,6 +23,9 @@ NeoPixelService ledService(LED_PIN, LED_COUNT);
 ReadQueueLedBleAction readLedAction(&ledService);
 StartingDeviceAction startingDeviceAction(&ledService);
 
+BatteryLevelService batteryLevel;
+PublishBatteryLevelAction publishBatteryAction(&ble, &batteryLevel);
+
 // Mt6580Service mt6580Service(config);
 // RoboServoEffect roboServoEffect;
 
@@ -29,10 +33,13 @@ StartingDeviceAction startingDeviceAction(&ledService);
 
 void setup()
 {
+
     HardwareMapConf();
-    
+
     ble.begin();
     ledService.begin();
+    batteryLevel.begin();
+    publishBatteryAction.run();
 
     // mt6580Service.begin();
     
@@ -53,9 +60,8 @@ void setup()
 }
 
 void loop()
-{   
+{
     vTaskDelete(NULL);
-
 }
 
 

@@ -20,7 +20,7 @@ void BleService::begin()
 
     /* ================= SERVER ================= */
     NimBLEServer* server = NimBLEDevice::createServer();
-    server->setCallbacks(new ServerCallbacks());
+    server->setCallbacks(new ServerCallbacks(this));
 
         /* MAIN SERVICE */
         NimBLEService* mainService =
@@ -51,20 +51,101 @@ void BleService::begin()
         batteryService->start();
 
     /* ================= ADVERTISING ================= */
-    NimBLEAdvertising* advertising = NimBLEDevice::getAdvertising();
-
-    NimBLEAdvertisementData advData;
-    advData.setName(BLE_CONF_DEVICE_NAME);
-    advData.setCompleteServices(NimBLEUUID(BLE_CONF_MAIN_SERVICE_UUID));
-    advertising->setAdvertisementData(advData);
-
-    advertising->addServiceUUID(BLE_CONF_MAIN_SERVICE_UUID);
-    advertising->addServiceUUID((uint16_t)BLE_CONF_BATTERY_SERVICE_UUID);
-
-    advertising->start();
+    clearAdvertisedBattery();
+    resumeAdvertising();
 
     Serial.println("Iniciando advertising...");
     Serial.println(NimBLEDevice::getAddress().toString().c_str());
+}
+
+void BleService::applyAdvertisedBattery(uint8_t percent)
+{
+    if (percent > 100)
+    {
+        return;
+    }
+
+    rebuildAdvertising(true, percent);
+    if (NimBLEDevice::getAdvertising()->isAdvertising())
+    {
+        NimBLEDevice::getAdvertising()->refreshAdvertisingData();
+    }
+}
+
+void BleService::clearAdvertisedBattery()
+{
+    rebuildAdvertising(false, 0);
+    if (NimBLEDevice::getAdvertising()->isAdvertising())
+    {
+        NimBLEDevice::getAdvertising()->refreshAdvertisingData();
+    }
+}
+
+void BleService::rebuildAdvertising(bool includeLevel, uint8_t percent)
+{
+    levelInAdvertisement = includeLevel && percent <= 100;
+    if (levelInAdvertisement)
+    {
+        advertisedPercent = percent;
+    }
+
+    NimBLEAdvertising* advertising = NimBLEDevice::getAdvertising();
+    const NimBLEUUID batteryUuid((uint16_t)BLE_CONF_BATTERY_SERVICE_UUID);
+
+    advertising->clearData();
+    advertising->enableScanResponse(false);
+
+    if (!advertising->setName(BLE_CONF_DEVICE_NAME))
+    {
+        Serial.println("Anuncio sem espaco para o nome.");
+        return;
+    }
+
+    advertising->addServiceUUID(batteryUuid);
+
+    if (levelInAdvertisement)
+    {
+        const uint8_t level = advertisedPercent;
+        if (!advertising->setServiceData(batteryUuid, &level, 1))
+        {
+            Serial.println("Anuncio sem espaco para o percentual.");
+            levelInAdvertisement = false;
+        }
+    }
+
+    advertising->enableScanResponse(true);
+    if (!advertising->addServiceUUID(BLE_CONF_MAIN_SERVICE_UUID))
+    {
+        Serial.println("Scan response sem UUID de comando.");
+    }
+}
+
+void BleService::resumeAdvertising()
+{
+    NimBLEAdvertising* advertising = NimBLEDevice::getAdvertising();
+    if (!advertising->isAdvertising())
+    {
+        advertising->refreshAdvertisingData();
+    }
+
+    if (!advertising->start())
+    {
+        Serial.println("Anuncio durante a sessao recusado.");
+    }
+}
+
+void BleService::restoreAdvertising()
+{
+    if (levelInAdvertisement)
+    {
+        applyAdvertisedBattery(advertisedPercent);
+    }
+    else
+    {
+        clearAdvertisedBattery();
+    }
+
+    resumeAdvertising();
 }
 
 /* ================================================================ */
@@ -114,7 +195,10 @@ void BleService::ServerCallbacks::onConnect(
     NimBLEServer* server,
     NimBLEConnInfo& connInfo)
 {
+    (void)server;
+    (void)connInfo;
     Serial.println("Cliente conectado.");
+    bleService->resumeAdvertising();
 }
 
 void BleService::ServerCallbacks::onDisconnect(
@@ -122,8 +206,10 @@ void BleService::ServerCallbacks::onDisconnect(
     NimBLEConnInfo& connInfo,
     int reason)
 {
+    (void)server;
+    (void)connInfo;
     Serial.print("Cliente desconectado. Motivo: ");
     Serial.println(reason);
 
-    NimBLEDevice::startAdvertising();
+    bleService->restoreAdvertising();
 }

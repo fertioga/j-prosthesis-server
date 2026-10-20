@@ -12,6 +12,9 @@
 #define ACCE_SDA_PORT 21
 #define ACCE_SCL_PORT 22
 
+/** Bateria: divisor 1:1 no GPIO 34 (ADC1) */
+#define BATTERY_ADC_PIN 34
+
 void HardwareMapConf();
 
 

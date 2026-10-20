@@ -36,6 +36,8 @@ Guia para controlar os NeoPixels da prótese via Bluetooth LE usando o app **Lig
 | Service | `0x180F` |
 | Battery Level | `0x2A19` |
 
+O percentual no anúncio, sem conexão, está em `specs/001-battery-level-advertising/contracts/battery-level-advertising.md`.
+
 ## Payload LED (5 bytes)
 
 A characteristic LED espera **exatamente 5 bytes**, sem padding:
