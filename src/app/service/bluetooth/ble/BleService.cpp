@@ -70,6 +70,8 @@ void BleService::applyAdvertisedBattery(uint8_t percent)
     {
         NimBLEDevice::getAdvertising()->refreshAdvertisingData();
     }
+
+    notifyBattery(std::string(1, static_cast<char>(percent)));
 }
 
 void BleService::clearAdvertisedBattery()
@@ -79,6 +81,9 @@ void BleService::clearAdvertisedBattery()
     {
         NimBLEDevice::getAdvertising()->refreshAdvertisingData();
     }
+
+    /* Empty value = unknown level (same rule as the advertisement) */
+    notifyBattery(std::string());
 }
 
 void BleService::rebuildAdvertising(bool includeLevel, uint8_t percent)

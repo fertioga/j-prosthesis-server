@@ -1,6 +1,6 @@
 # Contract: Percentual de bateria no anúncio
 
-**Contract version**: `1.0.0`  
+**Contract version**: `1.1.0`  
 **Status**: aditivo em relação ao comando de LED  
 **Device name**: `J1-Prosthesis` (inalterado)
 
@@ -34,9 +34,19 @@ Fora de 0–100 não é valor deste contrato. Carga desconhecida é a ausência 
 
 Esse UUID é o serviço de comando já usado pelo relógio. Continua no scan response para o scan ativo que o relógio já faz. O nome no pacote principal continua suficiente para achar o aparelho.
 
+## Durante a sessão: characteristic `0x2A19`
+
+Conectado ao relógio, o anúncio continua no ar, mas o central não recebe o anúncio do próprio peer. Na sessão, o canal é a characteristic Battery Level `0x2A19` do serviço `0x180F` (`READ_ENC | NOTIFY`).
+
+| Valor | Significado |
+|-------|-------------|
+| 1 byte, 0–100 | o mesmo inteiro do Service Data |
+| vazio (0 bytes) | carga desconhecida |
+
+O server grava e notifica junto com cada mudança do anúncio (`applyAdvertisedBattery` / `clearAdvertisedBattery`). Só notifica quando o valor muda; durante a sessão, o relógio não aplica expiração por tempo.
+
 ## Fora deste contrato
 
-- Characteristic Battery Level `0x2A19` (read/notify). Já existe no servidor e não é o canal desta feature. Um uso futuro dela deve publicar o mesmo inteiro 0–100, nunca a string `BAT:87`.
 - Payload de LED, passkey e bonding. Permanecem como em `doc/led_codes.md`.
 - Telas do relógio. O relógio ainda não parseia este Service Data; o layout acima é o que ele deve consumir quando essa tela existir.
 
